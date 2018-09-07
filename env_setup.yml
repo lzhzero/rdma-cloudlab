@@ -1,0 +1,7 @@
+---
+
+- name: cloudlab setup
+  hosts: rest-servers
+  gather_facts: true
+  roles:
+    - roles/cloudlab

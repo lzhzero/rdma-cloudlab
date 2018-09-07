@@ -1,0 +1,7 @@
+---
+
+- name: install herd
+  hosts: rest-servers
+  gather_facts: true
+  roles:
+    - roles/herd

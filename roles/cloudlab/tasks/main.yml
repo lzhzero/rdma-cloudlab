@@ -1,0 +1,33 @@
+---
+
+
+
+- name: update etc/modules
+  lineinfile:
+    dest: /etc/modules
+    line: "{{item}}"
+  with_items:
+    - 'mlx4_ib' 
+    - 'ib_umad' 
+    - 'ib_cm' 
+    - 'ib_ucm' 
+    - 'rdma_ucm'
+  become: yes
+
+- name: modprobe without reboot
+  shell: "modprobe mlx4_ib; modprobe ib_umad; modprobe ib_cm; modprobe ib_ucm; modprobe rdma_ucm"
+  become: yes
+
+- include: install_g++7.yml
+
+- name: install cmake
+  apt:
+    name: cmake
+  become: yes
+
+- name: create related folders
+  file:
+    path: "{{tmp_dir}}"
+    state: directory
+
+- include: install_mellanox_ofed.yml
