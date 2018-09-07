@@ -1,0 +1,47 @@
+---
+
+- name: git clone rdma-bench and herd
+  git:
+    repo: 'https://github.com/efficient/rdma_bench.git'
+    dest: "{{home_dir}}/rdma_bench"
+
+- name: install related packages
+  apt:
+    name: "{{item}}"
+  with_items:
+    - 'cmake'
+    - 'memcached'
+    - 'libmemcached-dev'
+    - 'libmemcached-tools'
+    - 'libnuma-dev'
+    - 'libpapi5.4.3'
+    - 'libpapi-dev'
+    - 'libgflags-dev'
+    - 'numactl'
+  become: yes
+
+- name: make build dir
+  file:
+    path: "{{home_dir}}/rdma_bench/build"
+    state: directory
+
+- name: cmake rdma_bench
+  shell: "{{item}}"
+  args:
+    chdir: "{{home_dir}}/rdma_bench/build"
+  with_items:
+    - "cmake .."
+    - "make"
+
+- name: set hugetable and SHM limits
+  shell: "{{item}}"
+  with_items:
+    - 'echo 8192 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages'
+    - 'bash -c "echo kernel.shmmax = 9223372036854775807 >> /etc/sysctl.conf"'
+    - 'bash -c "echo kernel.shmall = 1152921504606846720 >> /etc/sysctl.conf"'
+    - 'sysctl -p /etc/sysctl.conf'
+  become: yes
+
+
+
+
