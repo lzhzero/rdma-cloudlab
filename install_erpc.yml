@@ -1,0 +1,8 @@
+---
+
+- name: install erpc, currently require manual build with choice of transport layer
+  hosts: all
+  #hosts: rest-servers
+  gather_facts: false
+  roles:
+    - roles/erpc

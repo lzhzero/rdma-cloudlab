@@ -1,0 +1,19 @@
+---
+
+- name: git clone anujkaliaiitd/eRPC
+  git:
+    repo: 'https://github.com/anujkaliaiitd/eRPC.git'
+    dest: "{{home_dir}}/eRPC"
+
+- name: git clone google test old version
+  git:
+    repo: 'https://github.com/google/googletest.git'
+    dest: "{{home_dir}}/googletest"
+    version: rollback_808
+
+- name: install gtest
+  shell: "cmake . && make && sudo make install"
+  args:
+    chdir: "{{home_dir}}/googletest"
+
+
