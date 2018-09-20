@@ -1,0 +1,8 @@
+---
+
+- name: install octopus
+  hosts: all
+  #hosts: rest-servers
+  gather_facts: false
+  roles:
+    - roles/octopus
