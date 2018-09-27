@@ -18,7 +18,7 @@
       line: "{{item.nline}}"
     with_items:
       - { regexp: "^crail.namenode.address", nline: "crail.namenode.address                  crail://{{crail_namenode}}:9060" }
-      - { regexp: "^crail.storage.type", nline: "crail.storage.type                  {{crail_storage_type}}" }
+      - { regexp: "^crail.storage.types", nline: "crail.storage.types                  {{crail_storage_types}}" }
       - { regexp: "^crail.cachelimit", nline: "crail.cachelimit                  {{crail_cachelimit}}" }
 
   - name: add more to crail-site.conf

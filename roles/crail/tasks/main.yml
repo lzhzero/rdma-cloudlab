@@ -45,6 +45,20 @@
     - "export CRAIL_HOME={{crail_bin_dir}}"
     - "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
 
+- name: git clone DiSNI from ibm
+  git:
+    repo: 'https://github.com/zrlio/disni'
+    dest: "{{home_dir}}/disni"
+
+- name: build DiSNI with maven
+  shell: "mvn -DskipTests install"
+  args:
+    chdir: "{{home_dir}}/disni"
+
+- name: make libdisni
+  shell: "./autoprepare.sh && ./configure --with-jdk=/usr/lib/jvm/java-8-openjdk-amd64 && make && sudo make install"
+  args:
+    chdir: "{{home_dir}}/disni/libdisni/"
 #- name: set hugetable and SHM limits
 #  shell: "{{item}}"
 #  with_items:
