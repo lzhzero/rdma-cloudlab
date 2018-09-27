@@ -1,0 +1,34 @@
+---
+
+- name: configure crail
+  hosts: all
+  #hosts: rest-servers
+  gather_facts: false
+  tasks:
+  - name: copy example config file
+    copy:
+      src: "{{crail_bin_dir}}/conf/crail-site.conf.template"
+      dest: "{{crail_bin_dir}}/conf/crail-site.conf"
+    remote_src: yes
+
+  - name: update crail-site.conf
+    lineinfile:
+      path: "{{crail_bin_dir}}/conf/crail-site.conf"
+      regexp: "{{item.regexp}}"
+      line: "{{item.nline}}"
+    with_items:
+      - { regexp: "^crail.namenode.address", nline: "crail.namenode.address                  crail://{{crail_namenode}}:9060" }
+      - { regexp: "^crail.storage.type", nline: "crail.storage.type                  {{crail_storage_type}}" }
+      - { regexp: "^crail.cachelimit", nline: "crail.cachelimit                  {{crail_cachelimit}}" }
+
+  - name: add more to crail-site.conf
+    lineinfile:
+      path: "{{crail_bin_dir}}/conf/crail-site.conf"
+      line: "{{item}}"
+    with_items:
+      - "crail.storage.rdma.interface {{crail_rdma_interface}}"
+      - "crail.storage.rdma.datapath  /memory/data"
+      - "crail.storage.rdma.allocationsize    {{crail_rdma_allocationsize}}"
+      - "crail.storage.rdma.storagelimit      {{crail_rdma_storagelimit}}"
+      - "crail.storage.rdma.localmap          true"
+      - "crail.storage.rdma.indexpath         /index"

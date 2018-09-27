@@ -1,0 +1,8 @@
+---
+
+- name: install herd
+  hosts: all
+  #hosts: rest-servers
+  gather_facts: false
+  roles:
+    - roles/crail
