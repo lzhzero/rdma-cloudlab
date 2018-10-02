@@ -1,11 +1,11 @@
 ---
 
 - name: untar crail incubator release
+  when: inventory_hostname in groups['first_node']
   unarchive:
     src: "http://apache.claz.org/incubator/crail/1.0-incubating/apache-crail-1.0-incubating-src.tar.gz"
     dest: "{{home_dir}}"
     remote_src: yes
-  delegate_to: localhost
 
 - name: install related packages
   apt:
@@ -15,17 +15,11 @@
     - 'default-jdk'
   become: yes
 
-- name: make build dir
-  file:
-    path: "{{home_dir}}/rdma_bench/build"
-    state: directory
-  delegate_to: localhost
-
 - name: build crail with maven
+  when: inventory_hostname in groups['first_node']
   shell: "mvn -DskipTests install"
   args:
     chdir: "{{home_dir}}/apache-crail-1.0-incubating-src"
-  delegate_to: localhost
 
 - name: create crail bin folder
   file:
@@ -45,20 +39,33 @@
     - "export CRAIL_HOME={{crail_bin_dir}}"
     - "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
 
-- name: git clone DiSNI from ibm
-  git:
-    repo: 'https://github.com/zrlio/disni'
-    dest: "{{home_dir}}/disni"
+# DiSNI 1.5 is required for apache-crail-1.0 release
+- name: untar DiSNI 1.5
+  unarchive:
+    src: "https://github.com/zrlio/disni/archive/v1.5.tar.gz"
+    dest: "{{home_dir}}"
+    remote_src: yes
+
+#- name: git clone DiSNI from ibm
+#  git:
+#    repo: 'https://github.com/zrlio/disni'
+#    dest: "{{home_dir}}/disni"
 
 - name: build DiSNI with maven
   shell: "mvn -DskipTests install"
   args:
-    chdir: "{{home_dir}}/disni"
+    chdir: "{{home_dir}}/disni-1.5"
 
 - name: make libdisni
   shell: "./autoprepare.sh && ./configure --with-jdk=/usr/lib/jvm/java-8-openjdk-amd64 && make && sudo make install"
   args:
-    chdir: "{{home_dir}}/disni/libdisni/"
+    chdir: "{{home_dir}}/disni-1.5/libdisni/"
+
+- name: copy libdisni.so to crail folder
+  copy:
+    src: "{{home_dir}}/disni-1.5/libdisni/src/.libs/libdisni.so"
+    dest: "{{crail_bin_dir}}/lib/"
+
 #- name: set hugetable and SHM limits
 #  shell: "{{item}}"
 #  with_items:
