@@ -1,0 +1,11 @@
+- name: apt install related packages
+  apt:
+    name: "{{item}}"
+  with_items:
+    - 'infiniband-diags'
+    - 'libibverbs1'
+    - 'libibverbs-dev'
+    - 'ibverbs-utils'
+    - 'libipathverbs1'
+  become: yes
+
