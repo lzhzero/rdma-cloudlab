@@ -8,6 +8,7 @@
     line: "{{item}}"
   with_items:
     - 'ib_qib' 
+    - 'ib_ipoib' 
     - 'ib_umad' 
     - 'ib_cm' 
     - 'ib_ucm' 
@@ -15,7 +16,7 @@
   become: yes
 
 - name: modprobe without reboot
-  shell: "modprobe ib_qib; modprobe ib_umad; modprobe ib_cm; modprobe ib_ucm; modprobe rdma_ucm"
+  shell: "modprobe ib_qib; modprobe ib_ipoib; modprobe ib_umad; modprobe ib_cm; modprobe ib_ucm; modprobe rdma_ucm"
   become: yes
 
 - include: install_g++7.yml

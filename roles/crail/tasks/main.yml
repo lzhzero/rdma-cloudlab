@@ -1,12 +1,18 @@
 ---
+#
+#- name: untar crail incubator release
+#  when: inventory_hostname in groups['first_node']
+#  unarchive:
+#    src: "http://apache.claz.org/incubator/crail/1.0-incubating/apache-crail-1.0-incubating-src.tar.gz"
+#    dest: "{{home_dir}}"
+#    remote_src: yes
 
-- name: untar crail incubator release
+- name: git crail incubator latest
   when: inventory_hostname in groups['first_node']
-  unarchive:
-    src: "http://apache.claz.org/incubator/crail/1.0-incubating/apache-crail-1.0-incubating-src.tar.gz"
-    dest: "{{home_dir}}"
-    remote_src: yes
-
+  git:
+    repo: 'https://github.com/apache/incubator-crail.git'
+    dest: "{{home_dir}}/incubator-crail"
+  
 - name: install related packages
   apt:
     name: "{{item}}"
@@ -19,7 +25,8 @@
   when: inventory_hostname in groups['first_node']
   shell: "mvn -DskipTests install"
   args:
-    chdir: "{{home_dir}}/apache-crail-1.0-incubating-src"
+    #chdir: "{{home_dir}}/apache-crail-1.0-incubating-src"
+    chdir: "{{home_dir}}/incubator-crail"
 
 - name: create crail bin folder
   file:
@@ -28,7 +35,8 @@
 
 - name: copy crail tar to all servers
   unarchive:
-    src: "{{home_dir}}/apache-crail-1.0-incubating-src/assembly/target/crail-1.0-bin.tar.gz"
+    #src: "{{home_dir}}/apache-crail-1.0-incubating-src/assembly/target/crail-1.0-bin.tar.gz"
+    src: "{{home_dir}}/incubator-crail/assembly/target/crail-1.1-incubating-SNAPSHOT-bin.tar.gz"
     dest: "{{crail_bin_dir}}"
 
 - name: set env CRAIL_HOME
@@ -69,7 +77,7 @@
 - name: set hugetable and SHM limits
   shell: "{{item}}"
   with_items:
-    - 'echo 8192 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages'
+    - 'echo {{nr_hugepages}} > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages'
     - 'bash -c "echo kernel.shmmax = 9223372036854775807 >> /etc/sysctl.conf"'
     - 'bash -c "echo kernel.shmall = 1152921504606846720 >> /etc/sysctl.conf"'
     - 'sysctl -p /etc/sysctl.conf'

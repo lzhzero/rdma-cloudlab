@@ -7,5 +7,14 @@
     - 'libibverbs-dev'
     - 'ibverbs-utils'
     - 'libipathverbs1'
+    - 'librdmacm1'
+    - 'librdmacm-dev'
+    - 'rdmacm-utils'
+    - 'ibutils'
   become: yes
 
+- name: install openSM subnet manager on first node
+  when: inventory_hostname in groups['first_node']
+  apt:
+    name: opensm
+  become: yes
