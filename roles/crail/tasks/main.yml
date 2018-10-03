@@ -83,4 +83,4 @@
     - 'sysctl -p /etc/sysctl.conf'
   become: yes
 
-
+- include: setup_ipoib.yml

@@ -1,0 +1,3 @@
+- name: setup ip interface of ipoib
+  shell: "ifconfig {{crail_rdma_interface}} 10.0.0.{{inventory_hostname.split('.')[3]}}/24"
+  become: yes
