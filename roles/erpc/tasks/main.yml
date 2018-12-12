@@ -12,36 +12,56 @@
       - dpdk
       - libdpdk-dev
       - dpdk-igb-uio-dkms
+      - cmake
   become: true
 
-- name: git clone google test old version	
-  git:	
-    repo: 'https://github.com/google/googletest.git'	
-    dest: "{{home_dir}}/googletest"
+ # - name: git clone google test old version	
+  #git:	
+   # repo: 'https://github.com/google/googletest.git'	
+    #dest: "{{home_dir}}/googletest"
 
-- name: install gtest
-	shell: "cmake . && make -j && sudo make install"
-	args:
-		chdir: "{{home_dir}}/googletest"
+#- name: install gtest
+#shell: "cmake . && make -j && sudo make install"
+#args:
+#	chdir: "{{home_dir}}/googletest"
+
+- name: correct gtest installation
+  shell: "{{item}}"
+  with_items:
+    - "sudo cmake CMakeLists.txt"
+    - "sudo make"
+    - "sudo cp *.a /usr/lib"
+  args:
+    chdir: "/usr/src/gtest"
 
 - name: git clone efficient/eRPC
   git:
     repo: 'https://github.com/efficient/eRPC.git'
     dest: "{{home_dir}}/eRPC"
 
-- name: "following setup_dpdk script provided by dpdk, does modprobe and nic binding'
+- name: following setup_dpdk script provided by dpdk, does modprobe and nic binding
   shell: "{{item}}"
 #  args:
   with_items:
-    - "sudo mod probe uio"
-    - "sudo mod probe igb_uio"
-    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
+    - "sudo modprobe uio"
+    - "sudo modprobe igb_uio"
+#    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
   when: eRPC_mode == "dpdk"
 
-- name: "build eRPC based on different mode 'raw', 'infiniband', 'dpdk'
+- name: build eRPC based on different mode 'raw', 'infiniband', 'dpdk'
   shell: "{{item}}"
   with_items:
     - "cmake . -DPERF=OFF -DTRANSPORT={{eRPC_mode}}"
     - "make -j"
+  args:
+    chdir: "{{home_dir}}/eRPC"
 
+- name: set hugetable and SHM limits
+  shell: "{{item}}"
+  with_items:
+    - 'echo 8192 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages'
+    - 'bash -c "echo kernel.shmmax = 9223372036854775807 >> /etc/sysctl.conf"'
+    - 'bash -c "echo kernel.shmall = 1152921504606846720 >> /etc/sysctl.conf"'
+    - 'sysctl -p /etc/sysctl.conf'
+  become: yes
   # pending dpdk setup scripts for cloudlab
