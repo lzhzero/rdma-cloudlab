@@ -1,23 +1,47 @@
 ---
 
 - name: apt install packages
-    apt:
-      name: "{{packages}}"
-    vars:
-      packages:
-        - libnuma-dev
-        - libgflags-dev
-        - libgtest-dev
-        - libboost-dev
-        - dpdk
-        - libdpdk-dev
-        - dpdk-igb-uio-dkms
+  apt:
+    name: "{{packages}}"
+  vars:
+    packages:
+      - libnuma-dev
+      - libgflags-dev
+      - libgtest-dev
+      - libboost-dev
+      - dpdk
+      - libdpdk-dev
+      - dpdk-igb-uio-dkms
+  become: true
 
+- name: git clone google test old version	
+  git:	
+    repo: 'https://github.com/google/googletest.git'	
+    dest: "{{home_dir}}/googletest"
+
+- name: install gtest
+	shell: "cmake . && make -j && sudo make install"
+	args:
+		chdir: "{{home_dir}}/googletest"
 
 - name: git clone efficient/eRPC
   git:
     repo: 'https://github.com/efficient/eRPC.git'
     dest: "{{home_dir}}/eRPC"
 
+- name: "following setup_dpdk script provided by dpdk, does modprobe and nic binding'
+  shell: "{{item}}"
+#  args:
+  with_items:
+    - "sudo mod probe uio"
+    - "sudo mod probe igb_uio"
+    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
+  when: eRPC_mode == "dpdk"
 
-# pending dpdk setup scripts for cloudlab
+- name: "build eRPC based on different mode 'raw', 'infiniband', 'dpdk'
+  shell: "{{item}}"
+  with_items:
+    - "cmake . -DPERF=OFF -DTRANSPORT={{eRPC_mode}}"
+    - "make -j"
+
+  # pending dpdk setup scripts for cloudlab
