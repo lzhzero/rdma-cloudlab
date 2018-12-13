@@ -45,7 +45,8 @@
   with_items:
     - "sudo modprobe uio"
     - "sudo modprobe igb_uio"
-#    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
+    - "sudo ifconfig {{dpdk_nic}} down"
+    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
   when: eRPC_mode == "dpdk"
 
 - name: build eRPC based on different mode 'raw', 'infiniband', 'dpdk'
