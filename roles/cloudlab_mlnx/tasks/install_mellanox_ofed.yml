@@ -12,7 +12,7 @@
     chdir: "{{tmp_dir}}/MLNX_OFED_LINUX-4.5-1.0.1.0-ubuntu18.04-x86_64/"
   become: yes
 
-#- name: reload ofed driver
-  #shell: "/etc/init.d/openibd restart"
-  #become: yes
+- name: reload ofed driver
+  shell: "/etc/init.d/openibd restart"
+  become: yes
 
