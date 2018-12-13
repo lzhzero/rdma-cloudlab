@@ -32,3 +32,12 @@
     state: directory
 
 - include: install_mellanox_ofed.yml
+
+- name: correct gtest installation
+  shell: "{{item}}"
+  with_items:
+    - "sudo cmake CMakeLists.txt"
+    - "sudo make"
+    - "sudo cp *.a /usr/lib"
+  args:
+    chdir: "/usr/src/gtest"
