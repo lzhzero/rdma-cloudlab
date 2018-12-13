@@ -1,58 +1,15 @@
 ---
 
-- name: apt install packages
-  apt:
-    name: "{{packages}}"
-  vars:
-    packages:
-      - libnuma-dev
-      - libgflags-dev
-      - libgtest-dev
-      - libboost-dev
-      - dpdk
-      - libdpdk-dev
-      - dpdk-igb-uio-dkms
-      - cmake
-  become: true
-
- # - name: git clone google test old version	
-  #git:	
-   # repo: 'https://github.com/google/googletest.git'	
-    #dest: "{{home_dir}}/googletest"
-
-#- name: install gtest
-#shell: "cmake . && make -j && sudo make install"
-#args:
-#	chdir: "{{home_dir}}/googletest"
-
-- name: correct gtest installation
-  shell: "{{item}}"
-  with_items:
-    - "sudo cmake CMakeLists.txt"
-    - "sudo make"
-    - "sudo cp *.a /usr/lib"
-  args:
-    chdir: "/usr/src/gtest"
-
 - name: git clone efficient/eRPC
   git:
     repo: 'https://github.com/efficient/eRPC.git'
     dest: "{{home_dir}}/eRPC"
 
-- name: following setup_dpdk script provided by dpdk, does modprobe and nic binding
-  shell: "{{item}}"
-#  args:
-  with_items:
-    - "sudo modprobe uio"
-    - "sudo modprobe igb_uio"
-    - "sudo ifconfig {{dpdk_nic}} down"
-    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
-  when: eRPC_mode == "dpdk"
 
 - name: build eRPC based on different mode 'raw', 'infiniband', 'dpdk'
   shell: "{{item}}"
   with_items:
-    - "cmake . -DPERF=OFF -DTRANSPORT={{eRPC_mode}}"
+    - "cmake . -DPERF={{eRPC_DPERF_flag}} -DTRANSPORT={{eRPC_mode}}"
     - "make -j"
   args:
     chdir: "{{home_dir}}/eRPC"

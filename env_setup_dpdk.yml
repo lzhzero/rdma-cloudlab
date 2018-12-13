@@ -5,4 +5,4 @@
   #  hosts: rest-servers
   gather_facts: true
   roles:
-    - roles/cloudlab_mlnx
+    - roles/cloudlab_dpdk

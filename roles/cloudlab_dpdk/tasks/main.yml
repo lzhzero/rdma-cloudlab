@@ -1,0 +1,48 @@
+---
+
+
+
+- name: update etc/modules
+  lineinfile:
+    dest: /etc/modules
+    line: "{{item}}"
+  with_items:
+    - 'uio' 
+    - 'igb_uio'
+  become: yes
+
+
+#- include: install_g++7.yml
+
+- name: install packages
+  apt:
+    name: "{{packages}}"
+  vars:
+    packages:
+      - libnuma-dev
+      - libgflags-dev
+      - libboost-dev
+      - dpdk
+      - libdpdk-dev
+      - dpdk-igb-uio-dkms
+      - cmake
+      - numactl
+  become: yes
+
+- name: correct gtest installation
+  shell: "{{item}}"
+  with_items:
+    - "sudo cmake CMakeLists.txt"
+    - "sudo make"
+    - "sudo cp *.a /usr/lib"
+  args:
+    chdir: "/usr/src/gtest"
+
+- name: modprobe and bind nic
+  shell: "{{item}}"
+  with_items:
+    - "sudo modprobe uio"
+    - "sudo modprobe igb_uio"
+    - "sudo ifconfig {{dpdk_nic}} down"
+    - "sudo dpdk-devbind --bind=igb_uio {{dpdk_nic}}"
+
