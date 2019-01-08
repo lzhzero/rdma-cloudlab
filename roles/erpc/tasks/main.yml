@@ -1,4 +1,28 @@
 ---
+- name: install packages
+  apt:
+    name: "{{item}}"
+  with_items:
+    - 'numactl'
+    - 'libnuma-dev'
+    - 'libgflags-dev'
+  become: yes
+
+- name: install googletest 1.8.1 1/2
+  git:
+    repo: 'https://github.com/google/googletest'
+    dest: "{{tmp_dir}}/googletest"
+    version: release-1.8.1
+
+- name: install googletest 1.8.1 2/2
+  shell: "{{item}}"
+  with_items:
+    - "sudo cmake CMakeLists.txt"
+    - "sudo make"
+    - "sudo make install"
+  args:
+    chdir: "{{tmp_dir}}/googletest"
+
 
 - name: git clone efficient/eRPC
   git:

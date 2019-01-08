@@ -33,11 +33,26 @@
 
 - include: install_mellanox_ofed.yml
 
-- name: correct gtest installation
+- name: install googletest 1.8.1 1/2
+  git:
+    repo: 'https://github.com/google/googletest'
+    dest: "{{tmp_dir}}/googletest"
+    version: release-1.8.1
+
+- name: install googletest 1.8.1 2/2
   shell: "{{item}}"
   with_items:
     - "sudo cmake CMakeLists.txt"
     - "sudo make"
-    - "sudo cp *.a /usr/lib"
+    - "sudo make install"
   args:
-    chdir: "/usr/src/gtest"
+    chdir: "{{tmp_dir}}/googletest"
+
+#- name: correct gtest installation
+#  shell: "{{item}}"
+#  with_items:
+#    - "sudo cmake CMakeLists.txt"
+#    - "sudo make"
+#    - "sudo cp *.a /usr/lib"
+#  args:
+#    chdir: "/usr/src/gtest"
